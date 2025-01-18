@@ -1,6 +1,7 @@
 package pub
 
 type Key struct {
+	UserId    int64 // any id to identify this user key paire
 	ApiKey    string
 	SecretKey string
 }
@@ -10,6 +11,7 @@ type ErrMsg struct {
 	Msg  string
 }
 
+/*
 // webstocket account update data
 type BalanceUpdate struct {
 	Symbol        string
@@ -110,3 +112,5 @@ type OrderUpdateData struct {
 		Profit            float64 // 该交易实现盈亏
 	}
 }
+
+*/

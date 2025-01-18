@@ -5,11 +5,13 @@ const (
 	endpoint_websocket = "wss://fstream.binance.com"
 
 	recvWindow = "5000"
+	WsChanLen  = 128 // chan lengh for websocket message
 )
 
 var TestKey = &Key{
-	ApiKey:    "", // for testing
-	SecretKey: "", // for testing
+	UserId:    123456,
+	ApiKey:    "Y3H9yFQTFh55vnlowVrQHBPMRALEfmAfa8Q3yj62HLNolUu9O7TVtvhDio62tfgD", // for testing
+	SecretKey: "FiAAghn8vzGYZ6xYGDpE3Dw8uknzrIrRXJMLjiEiYKBJdHMt6xmiJCJvVwuUXuYD", // for testing
 }
 
 type ContractType string

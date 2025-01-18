@@ -155,7 +155,7 @@ func sliceToKdata(arr [][]interface{}) []kData {
 	}
 	return kDataArr
 }
-func Klines(symbol string, interval pub.KlineInterval, startTime, endTime, limit int) ([]kData, error) {
+func Klines(symbol string, interval pub.KlineInterval, startTime, endTime, limit int64) ([]kData, error) {
 	params := map[string]interface{}{
 		"symbol":   symbol,
 		"interval": interval,

@@ -13,7 +13,7 @@ import (
 func TestTestOrder(t *testing.T) {
 	type args struct {
 		key *pub.Key
-		op  *orderParam
+		op  *OrderParam
 	}
 	tests := []struct {
 		name    string
@@ -28,7 +28,7 @@ func TestTestOrder(t *testing.T) {
 					ApiKey:    "test",
 					SecretKey: "test",
 				},
-				op: &orderParam{
+				op: &OrderParam{
 					Symbol:           "test",
 					Side:             "test",
 					Type:             "test",
@@ -64,7 +64,7 @@ func TestTestOrder(t *testing.T) {
 func TestNewOrder(t *testing.T) {
 	type args struct {
 		key *pub.Key
-		op  *orderParam
+		op  *OrderParam
 	}
 	tests := []struct {
 		name    string
@@ -75,7 +75,7 @@ func TestNewOrder(t *testing.T) {
 			"test",
 			&args{
 				key: pub.TestKey,
-				op: &orderParam{
+				op: &OrderParam{
 					Symbol:           "BTCUSDT",
 					Side:             pub.OS_Buy,
 					PositionSide:     pub.PS_Long,
@@ -103,7 +103,7 @@ func TestNewOrder(t *testing.T) {
 func TestBatchOrders(t *testing.T) {
 	type args struct {
 		key *pub.Key
-		ops []orderParam
+		ops []OrderParam
 	}
 	tests := []struct {
 		name    string
@@ -114,7 +114,7 @@ func TestBatchOrders(t *testing.T) {
 			"test",
 			&args{
 				key: pub.TestKey,
-				ops: []orderParam{
+				ops: []OrderParam{
 					{
 						Symbol:           "BTCUSDT",
 						Side:             pub.OS_Buy,

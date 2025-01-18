@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"strings"
 	"time"
 
@@ -12,7 +13,11 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func StartSubscribe(ctx context.Context, streams []string, cb pub.StreamDataCallback) (*websocket.Conn, chan bool, error) {
+func init() {
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+}
+
+func StartSubscribe(ctx context.Context, streams []string) (*websocket.Conn, chan interface{}, error) {
 	var urlPath string
 	if len(streams) == 1 {
 		urlPath = "/ws/" + streams[0]
@@ -20,33 +25,144 @@ func StartSubscribe(ctx context.Context, streams []string, cb pub.StreamDataCall
 		urlPath = "/stream?streams=" + strings.Join(streams, "/")
 	}
 	fmt.Println("urlPath:", urlPath)
-	dataStream := make(chan *pub.WsMessage, 100)
-	conn, err := pub.WsConnect(ctx, urlPath, dataStream)
+
+	conn, rawDataChan, err := pub.WsConnect(ctx, urlPath)
 	if err != nil {
+		log.Printf("StartSubscribe WsConnect err: %v", err)
 		return nil, nil, err
 	}
 
-	done := make(chan bool)
+	processedDataChan := make(chan interface{}, pub.WsChanLen)
 	go func() {
-		defer conn.Close()
-		defer close(done)
+		defer close(processedDataChan)
 
-		for {
+		for { // read message loop
 			select {
 			case <-ctx.Done():
-				return // return not break
-			case msg := <-dataStream:
-				if cb != nil {
-					err = cb(msg)
-					if err != nil {
-						log.Printf("StartSubscribe callback err: %v", err)
-					}
+				return // return, no more read.
+			case msg := <-rawDataChan:
+				if msg.MsgType == websocket.CloseMessage { // connection closed
+					log.Printf("StartSubscribe close message: %+v", msg)
+					return // return, no more read.
+				}
+
+				d, err := streamDataProcess(msg)
+				if err != nil {
+					log.Printf("StartSubscribe streamDataProcess err: %v", err)
+				}
+				if d != nil {
+					processedDataChan <- d
 				}
 			}
 		}
 	}()
 
-	return conn, done, nil
+	return conn, processedDataChan, nil
+}
+
+func streamDataProcess(m *pub.WsMessage) (interface{}, error) {
+	var d StreamData
+	if err := json.Unmarshal(m.Message, &d); err != nil {
+		return nil, err
+	}
+	if d.Stream == "" && d.Data == nil { // single stream data
+		if err := json.Unmarshal(m.Message, &d.Data); err != nil {
+			return nil, err
+		}
+	}
+
+	fmt.Printf("StreamData: %+v\n", d.Stream)
+	if d.Stream == "" && d.Data == nil {
+		return nil, fmt.Errorf("got non-stream data: %s", string(m.Message))
+	}
+
+	b, err := json.Marshal(d.Data)
+	if err != nil {
+		return nil, err
+	}
+
+	eventyType := d.Data["e"].(string)
+	switch eventyType {
+	case "aggTrade":
+		var t AggTrade
+		if err := json.Unmarshal(b, &t); err != nil {
+			return nil, err
+		}
+		return t, nil
+
+	case "markPriceUpdate":
+		var t MarkPriceUpdate
+		if err := json.Unmarshal(b, &t); err != nil {
+			return nil, err
+		}
+		return t, nil
+
+	case "kline":
+		var t Kline
+		if err := json.Unmarshal(b, &t); err != nil {
+			return nil, err
+		}
+		return t, nil
+
+	case "miniTicker":
+		var t MiniTicker
+		if err := json.Unmarshal(b, &t); err != nil {
+			return nil, err
+		}
+		return t, nil
+
+	case "ticker":
+		var t Ticker
+		if err := json.Unmarshal(b, &t); err != nil {
+			return nil, err
+		}
+		return t, nil
+
+	case "bookTicker":
+		var t BookTicker
+		if err := json.Unmarshal(b, &t); err != nil {
+			return nil, err
+		}
+		return t, nil
+
+	case "forceOrder":
+		var t ForceOrder
+		if err := json.Unmarshal(b, &t); err != nil {
+			return nil, err
+		}
+		return t, nil
+
+	case "depthUpdate":
+		var t DepthUpdate
+		if err := json.Unmarshal(b, &t); err != nil {
+			return nil, err
+		}
+		return t, nil
+
+	case "compositeIndex":
+		var t CompositeIndex
+		if err := json.Unmarshal(b, &t); err != nil {
+			return nil, err
+		}
+		return t, nil
+
+	case "contractInfo":
+		var t ContractInfo
+		if err := json.Unmarshal(b, &t); err != nil {
+			return nil, err
+		}
+		return t, nil
+
+	case "assetIndexUpdate":
+		var t AssetIndexUpdate
+		if err := json.Unmarshal(b, &t); err != nil {
+			return nil, err
+		}
+		return t, nil
+
+	default:
+		return nil, fmt.Errorf("unknown event type: %s, data: %s", eventyType, string(m.Message))
+	}
 }
 
 // method: SUBSCRIBE, UNSUBSCRIBE
