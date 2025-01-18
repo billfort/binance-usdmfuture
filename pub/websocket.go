@@ -14,24 +14,37 @@ type WsMessage struct {
 	MsgType int
 	Message []byte
 }
-type StreamDataCallback func(msg *WsMessage) error
 
-func WsConnect(ctx context.Context, urlPath string, data chan *WsMessage) (*websocket.Conn, error) {
+func WsConnect(ctx context.Context, urlPath string) (*websocket.Conn, chan *WsMessage, error) {
 	url := endpoint_websocket + urlPath
-	fmt.Println("WsSubscribe url:", url)
+	fmt.Println("WsConnect url:", url)
+
+	if ctx.Err() != nil {
+		log.Printf("WsConnect context err: %v", ctx.Err())
+		return nil, nil, ctx.Err()
+	}
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
-		return nil, err
+		log.Printf("WsConnect websocket dial %s err: %v", url, err)
+		return nil, nil, err
 	}
 
-	go func() {
-		defer conn.Close()
+	rawDataChan := make(chan *WsMessage, WsChanLen)
+
+	go func() { // read message loop
+		defer func() {
+			rawDataChan <- &WsMessage{MsgType: websocket.CloseMessage, Message: nil}
+			conn.Close()
+			close(rawDataChan)
+			fmt.Printf("WsConnect read message loop exit now.\n")
+		}()
 
 		for {
 			if ctx.Err() != nil {
-				log.Printf("OpenWebsocketConn break read loop now because of context err: %v", ctx.Err())
-				break
+				log.Printf("OpenWebsocketConn break read loop now because of context err 1: %v", ctx.Err())
+				return
 			}
+
 			msgType, message, err := conn.ReadMessage()
 			if err != nil {
 				if !strings.Contains(err.Error(), "normal") { // websocket: close 1000 (normal): Bye
@@ -39,7 +52,7 @@ func WsConnect(ctx context.Context, urlPath string, data chan *WsMessage) (*webs
 				}
 				return
 			}
-			// fmt.Printf("websocket got: msgType: %v, message: %v\n", msgType, string(message))
+
 			if msgType == websocket.PingMessage {
 				conn.WriteMessage(websocket.PongMessage, nil)
 				continue
@@ -58,13 +71,13 @@ func WsConnect(ctx context.Context, urlPath string, data chan *WsMessage) (*webs
 			}
 
 			select {
-			case data <- &WsMessage{MsgType: msgType, Message: message}:
+			case rawDataChan <- &WsMessage{MsgType: msgType, Message: message}:
 			case <-ctx.Done():
-				log.Printf("OpenWebsocketConn break read loop now because of context err: %v", ctx.Err())
+				log.Printf("OpenWebsocketConn break read loop now because of context err 2: %v", ctx.Err())
 				return
 			}
 		}
 	}()
 
-	return conn, nil
+	return conn, rawDataChan, nil
 }

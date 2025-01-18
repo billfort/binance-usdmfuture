@@ -7,7 +7,7 @@ import (
 	"github.com/billfort/binance-usdmfuture/pub"
 )
 
-func NewOrder(key *pub.Key, op *orderParam) (*orderResponse, error) {
+func NewOrder(key *pub.Key, op *OrderParam) (*orderResponse, error) {
 	params := pub.StructToMap(op)
 
 	resBody, errMsg, err := pub.PostWithSign(key, "/fapi/v1/order", params)
@@ -27,7 +27,7 @@ func NewOrder(key *pub.Key, op *orderParam) (*orderResponse, error) {
 	return &resp, nil
 }
 
-func TestOrder(key *pub.Key, op *orderParam) (*orderResponse, error) {
+func TestOrder(key *pub.Key, op *OrderParam) (*orderResponse, error) {
 	params := pub.StructToMap(op)
 
 	resBody, errMsg, err := pub.PostWithSign(key, "/fapi/v1/order/test", params)
@@ -47,7 +47,7 @@ func TestOrder(key *pub.Key, op *orderParam) (*orderResponse, error) {
 	return &resp, nil
 }
 
-func BatchOrders(key *pub.Key, ops []orderParam) ([]orderResponse, error) {
+func BatchOrders(key *pub.Key, ops []OrderParam) ([]orderResponse, error) {
 	b, err := json.Marshal(ops)
 	if err != nil {
 		return nil, err
@@ -183,13 +183,13 @@ func CancelAllOpenOrders(key *pub.Key, symbol string) error {
 	return fmt.Errorf("%+v", resp)
 }
 
-func CountdownCancleAll(symbol string, countdownTime int64) error {
+func CountdownCancleAll(key *pub.Key, symbol string, countdownTime int64) error {
 	params := map[string]interface{}{
 		"symbol":        symbol,
 		"countdownTime": countdownTime,
 	}
 
-	resBody, err := pub.DeleteWithSign(nil, "/fapi/v1/countdownCancelAll", params)
+	resBody, err := pub.DeleteWithSign(key, "/fapi/v1/countdownCancelAll", params)
 	if err != nil {
 		return err
 	}
@@ -290,7 +290,7 @@ func QueryOpenOrder(key *pub.Key, symbol string, orderId int64, origClientOrderI
 	return &resp, nil
 }
 
-func QueryForceOrders(symbol string, autoCloseType string, startTime int64, endTime int64, limit int) ([]orderResponse, error) {
+func QueryForceOrders(key *pub.Key, symbol string, autoCloseType string, startTime int64, endTime int64, limit int) ([]orderResponse, error) {
 	params := map[string]interface{}{
 		"symbol":        symbol,
 		"autoCloseType": autoCloseType,
@@ -299,7 +299,7 @@ func QueryForceOrders(symbol string, autoCloseType string, startTime int64, endT
 		"limit":         limit,
 	}
 
-	resBody, err := pub.GetWithSign(nil, "/fapi/v1/forceOrders", params)
+	resBody, err := pub.GetWithSign(key, "/fapi/v1/forceOrders", params)
 	if err != nil {
 		return nil, err
 	}
@@ -313,7 +313,7 @@ func QueryForceOrders(symbol string, autoCloseType string, startTime int64, endT
 	return resp, nil
 }
 
-func QueryUserTrades(symbol string, orderId int64, startTime, endTime, fromId int64, limit int) ([]tradeInfo, error) {
+func QueryUserTrades(key *pub.Key, symbol string, orderId int64, startTime, endTime, fromId int64, limit int) ([]tradeInfo, error) {
 	params := map[string]interface{}{
 		"symbol":    symbol,
 		"orderId":   orderId,
@@ -323,7 +323,7 @@ func QueryUserTrades(symbol string, orderId int64, startTime, endTime, fromId in
 		"limit":     limit,
 	}
 
-	resBody, err := pub.GetWithSign(nil, "/fapi/v1/userTrades", params)
+	resBody, err := pub.GetWithSign(key, "/fapi/v1/userTrades", params)
 	if err != nil {
 		return nil, err
 	}

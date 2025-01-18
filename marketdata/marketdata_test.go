@@ -76,9 +76,9 @@ func TestAggregatedTrades(t *testing.T) {
 func TestKline(t *testing.T) {
 	symbol := "BTCUSDT"
 	interval := pub.KI_Hour1
-	limit := 5
-	startTime := 0
-	endTime := 0
+	limit := int64(5)
+	startTime := int64(0)
+	endTime := int64(0)
 	klines, err := Klines(symbol, interval, startTime, endTime, limit)
 	require.Nil(t, err)
 	require.NotNil(t, klines)

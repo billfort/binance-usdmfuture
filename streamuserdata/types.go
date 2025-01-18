@@ -10,10 +10,11 @@ type streamHeader struct {
 }
 
 type AccountUpdate struct {
+	UserId          int64
 	EventType       string `json:"e"` // ACCOUNT_UPDATE
 	EventTime       int64  `json:"E"`
 	TransactionTime int64  `json:"T"`
-	UpdateData      struct {
+	Data            struct {
 		EventReasonType string `json:"m"`
 		Balances        []struct {
 			Asset              string `json:"a"`
@@ -36,7 +37,8 @@ type AccountUpdate struct {
 }
 
 type MarginCall struct {
-	EventType   string `json:"e"`
+	UserId      int64
+	EventType   string `json:"e"` // MARGIN_CALL
 	EventTime   int64  `json:"E"`
 	CrossWallet string `json:"cw"`
 	Positions   []struct {
@@ -89,6 +91,7 @@ type Order struct {
 }
 
 type OrderTradeUpdate struct {
+	UserId          int64
 	EventType       string `json:"e"` // ORDER_TRADE_UPDATE
 	EventTime       int64  `json:"E"`
 	TransactionTime int64  `json:"T"`
@@ -96,6 +99,7 @@ type OrderTradeUpdate struct {
 }
 
 type TradeLite struct {
+	UserId          int64
 	EventType       string `json:"e"` // TRADE_LITE
 	EventTime       int64  `json:"E"`
 	TransactionTime int64  `json:"T"`
@@ -112,7 +116,8 @@ type TradeLite struct {
 }
 
 type AccountConfigUpdate struct {
-	EventType       string `json:"e"`
+	UserId          int64
+	EventType       string `json:"e"` // ACCOUNT_CONFIG_UPDATE
 	EventTime       int64  `json:"E"`
 	TransactionTime int64  `json:"T"`
 	AccountLeverage struct {
@@ -125,7 +130,8 @@ type AccountConfigUpdate struct {
 }
 
 type StrategyUpdate struct {
-	EventType       string `json:"e"`
+	UserId          int64
+	EventType       string `json:"e"` // STRATEGY_UPDATE
 	EventTime       int64  `json:"E"`
 	TransactionTime int64  `json:"T"`
 	StrategyUpdate  struct {
@@ -139,7 +145,8 @@ type StrategyUpdate struct {
 }
 
 type GridUpdate struct {
-	EventType       string `json:"e"`
+	UserId          int64
+	EventType       string `json:"e"` // GRID_UPDATE
 	EventTime       int64  `json:"E"`
 	TransactionTime int64  `json:"T"`
 	GridUpdate      struct {
@@ -157,6 +164,7 @@ type GridUpdate struct {
 }
 
 type ConditionalOrderTriggerReject struct {
+	UserId          int64
 	EventType       string `json:"e"` // "CONDITIONAL_ORDER_TRIGGER_REJECT"
 	EventTime       int64  `json:"E"`
 	TransactionTime int64  `json:"T"`

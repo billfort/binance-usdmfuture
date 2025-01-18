@@ -124,14 +124,14 @@ type ForceOrder struct {
 }
 
 type DepthUpdate struct {
-	EventType string      `json:"e"` // "depthUpdate",
-	EventTime int64       `json:"E"`
-	Symbol    string      `json:"s"`
-	FirstID   int64       `json:"U"`
-	LastID    int64       `json:"u"`
-	PrevLast  int64       `json:"pu"` // Final update Id in last stream(ie `u` in last stream)
-	Bids      [][2]string `json:"b"`  // []string{Price level to be updated, qty}
-	Asks      [][2]string `json:"a"`  // []string{Price level to be updated, qty}
+	EventType string     `json:"e"` // "depthUpdate",
+	EventTime int64      `json:"E"`
+	Symbol    string     `json:"s"`
+	FirstID   int64      `json:"U"`
+	LastID    int64      `json:"u"`
+	PrevLast  int64      `json:"pu"` // Final update Id in last stream(ie `u` in last stream)
+	Bids      [][]string `json:"b"`  // []string{Price level to be updated, qty}
+	Asks      [][]string `json:"a"`  // []string{Price level to be updated, qty}
 }
 
 type CompositeIndex struct {

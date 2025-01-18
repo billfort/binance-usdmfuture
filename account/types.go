@@ -39,6 +39,8 @@ type position struct {
 	InitialMargin    string `json:"initialMargin"`    // initial margin required with current mark price
 	MaintMargin      string `json:"maintMargin"`      // maintenance margin required
 	UpdateTime       int64  `json:"updateTime"`       // last update time
+	EntryPrice       string `json:"entryPrice"`       // entry price
+	Leverage         string `json:"leverage"`         // leverage
 }
 
 type accountInfo struct {

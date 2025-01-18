@@ -2,7 +2,7 @@ package trade
 
 import "github.com/billfort/binance-usdmfuture/pub"
 
-type orderParam struct {
+type OrderParam struct {
 	Symbol              string
 	Side                pub.OrderSide
 	PositionSide        pub.PositionSide
