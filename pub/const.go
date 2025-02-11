@@ -1,8 +1,9 @@
 package pub
 
 const (
-	endpoint_rest      = "https://fapi.binance.com"
-	endpoint_websocket = "wss://fstream.binance.com"
+	futureBaseUrl = "https://fapi.binance.com"
+	spotBaseUrl   = "https://api.binance.com" // api1...., api2...., api3..., api4....
+	futureWssUrl  = "wss://fstream.binance.com"
 
 	recvWindow = "5000"
 	WsChanLen  = 128 // chan lengh for websocket message

@@ -3,6 +3,7 @@ package account
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/billfort/binance-usdmfuture/pub"
 )
@@ -271,4 +272,41 @@ func GetBNBFeeStatus(key *pub.Key) (bool, error) {
 	}
 
 	return resp.FeeBurn, nil
+}
+
+// 获取合约资金划转历史 (USER_DATA)
+func GetInternalTransferHist(key *pub.Key, startTime int64) (list []TfrRow, err error) {
+	// params: {"startTime": milliSecond, (optional)"asset": "usdt", (optional)"endTime": milliSecond}
+	if startTime == 0 {
+		startTime = time.Now().UnixMilli() - 6*720*3600000 // 6个月以来
+	}
+
+	params := map[string]interface{}{
+		"startTime": fmt.Sprintf("%v", startTime),
+	}
+
+	resBody, err := pub.SpotGetWithSign(key, "/sapi/v1/futures/transfer", params)
+	if err != nil {
+		return nil, err
+	}
+	var r tfrHist
+	err = json.Unmarshal(resBody, &r)
+	if err != nil {
+		return nil, err
+	}
+	for i := 0; i < len(r.Rows); i++ {
+		switch r.Rows[i].Type {
+		case 1:
+			r.Rows[i].CType = "Spot2USDM"
+		case 2:
+			r.Rows[i].CType = "USDM2Spot"
+		case 3:
+			r.Rows[i].CType = "Spot2CoinM"
+		case 4:
+			r.Rows[i].CType = "CoinM2Spot"
+		}
+		r.Rows[i].CTime = time.Unix(r.Rows[i].Timestamp/1000, 0).Format("2006-01-02 15:04:05")
+	}
+
+	return r.Rows, nil
 }

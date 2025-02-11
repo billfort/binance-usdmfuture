@@ -16,7 +16,7 @@ type WsMessage struct {
 }
 
 func WsConnect(ctx context.Context, urlPath string) (*websocket.Conn, chan *WsMessage, error) {
-	url := endpoint_websocket + urlPath
+	url := futureWssUrl + urlPath
 	fmt.Println("WsConnect url:", url)
 
 	if ctx.Err() != nil {
