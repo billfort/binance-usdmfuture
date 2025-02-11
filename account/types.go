@@ -141,3 +141,18 @@ type downloadUrl struct {
 	ExpirationTimestamp int64  `json:"expirationTimestamp"` // download url expiration timestamp
 	IsExpired           bool   `json:"isExpired"`           // ignore
 }
+
+type TfrRow struct {
+	Asset     string `json:"asset"`     // "USDT", 资产
+	TransId   string `json:"transId"`   // 划转ID
+	Amount    string `json:"amount"`    // 数量
+	Type      int    `json:"type"`      // "1", 划转方向: 1( 现货向USDT本位合约), 2( USDT本位合约向现货), 3( 现货向币本位合约), and 4( 币本位合约向现货)
+	CType     string `json:"cType"`     //
+	Timestamp int64  `json:"timestamp"` // 时间戳
+	CTime     string `json:"ctime"`     // 时间
+	Status    string `json:"status"`    // PENDING (等待执行), CONFIRMED (成功划转), FAILED (执行失败);
+}
+type tfrHist struct {
+	Rows  []TfrRow `json:"rows"`
+	Total int      `json:"total"`
+}

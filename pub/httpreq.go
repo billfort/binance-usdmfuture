@@ -50,7 +50,7 @@ func AdjustTime() {
 
 // 发送需要签名的GET请求
 func GetWithSign(key *Key, path string, data ParamData) (resBody []byte, err error) {
-	return getWithSign(endpoint_rest, key, path, data)
+	return getWithSign(futureBaseUrl, key, path, data)
 }
 
 func getWithSign(baseUrl string, key *Key, path string, data ParamData) (resBody []byte, err error) {
@@ -133,7 +133,7 @@ func PostWithSign(key *Key, path string, data ParamData) (resBody []byte, errMsg
 	path += "?" + str + "&" + url.QueryEscape("signature") + "=" + url.QueryEscape(s)
 
 	var req *http.Request
-	req, err = http.NewRequest("POST", endpoint_rest+path, nil)
+	req, err = http.NewRequest("POST", futureBaseUrl+path, nil)
 	if err != nil {
 		return
 	}
@@ -188,7 +188,7 @@ func PutWithSign(key *Key, path string, data ParamData) (resBody []byte, err err
 
 	var req *http.Request
 	path += "?" + str + "&" + url.QueryEscape("signature") + "=" + url.QueryEscape(s)
-	req, err = http.NewRequest("PUT", endpoint_rest+path, nil)
+	req, err = http.NewRequest("PUT", futureBaseUrl+path, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -246,7 +246,7 @@ func DeleteWithSign(key *Key, path string, data ParamData) (resBody []byte, err 
 
 	var req *http.Request
 	path += "?" + str + "&" + url.QueryEscape("signature") + "=" + url.QueryEscape(s)
-	req, err = http.NewRequest(http.MethodDelete, endpoint_rest+path, nil)
+	req, err = http.NewRequest(http.MethodDelete, futureBaseUrl+path, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -280,7 +280,7 @@ func DeleteWithSign(key *Key, path string, data ParamData) (resBody []byte, err 
 
 // / 发送原始请求，不需要签名
 func GetNoSign(path string, params ParamData) (resBody []byte, err error) {
-	url := endpoint_rest + path
+	url := futureBaseUrl + path
 	if params != nil {
 		url = url + "?" + EncodeQueryString(params, false)
 	}
@@ -332,7 +332,7 @@ func PostNoSign(path string, data ParamData) (resBody []byte, err error) {
 
 	var req *http.Request
 	if body != nil {
-		req, err = http.NewRequest("POST", endpoint_rest+path, body)
+		req, err = http.NewRequest("POST", futureBaseUrl+path, body)
 	}
 	if err != nil {
 		return
@@ -357,4 +357,8 @@ func PostNoSign(path string, data ParamData) (resBody []byte, err error) {
 	}
 
 	return
+}
+
+func SpotGetWithSign(key *Key, path string, data ParamData) (resBody []byte, err error) {
+	return getWithSign(spotBaseUrl, key, path, data)
 }
