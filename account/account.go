@@ -275,14 +275,16 @@ func GetBNBFeeStatus(key *pub.Key) (bool, error) {
 }
 
 // 获取合约资金划转历史 (USER_DATA)
-func GetInternalTransferHist(key *pub.Key, startTime int64) (list []TfrRow, err error) {
+func GetInternalTransferHist(key *pub.Key, asset string, startTime int64) (list []TfrRow, err error) {
 	// params: {"startTime": milliSecond, (optional)"asset": "usdt", (optional)"endTime": milliSecond}
 	if startTime == 0 {
 		startTime = time.Now().UnixMilli() - 6*720*3600000 // 6个月以来
 	}
 
 	params := map[string]interface{}{
-		"startTime": fmt.Sprintf("%v", startTime),
+		"startTime": fmt.Sprintf("%v", startTime), // max 6 months, default 7 days
+		"asset":     asset,
+		"size":      100, // max 100, default 10
 	}
 
 	resBody, err := pub.SpotGetWithSign(key, "/sapi/v1/futures/transfer", params)
@@ -294,6 +296,7 @@ func GetInternalTransferHist(key *pub.Key, startTime int64) (list []TfrRow, err 
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("transfer total: %v\n", r.Total)
 	for i := 0; i < len(r.Rows); i++ {
 		switch r.Rows[i].Type {
 		case 1:
@@ -304,6 +307,8 @@ func GetInternalTransferHist(key *pub.Key, startTime int64) (list []TfrRow, err 
 			r.Rows[i].CType = "Spot2CoinM"
 		case 4:
 			r.Rows[i].CType = "CoinM2Spot"
+		default:
+			r.Rows[i].CType = "ToBeDefined"
 		}
 		r.Rows[i].CTime = time.Unix(r.Rows[i].Timestamp/1000, 0).Format("2006-01-02 15:04:05")
 	}

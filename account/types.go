@@ -144,7 +144,7 @@ type downloadUrl struct {
 
 type TfrRow struct {
 	Asset     string `json:"asset"`     // "USDT", 资产
-	TransId   string `json:"transId"`   // 划转ID
+	TranId    int64  `json:"tranId"`    // 划转ID
 	Amount    string `json:"amount"`    // 数量
 	Type      int    `json:"type"`      // "1", 划转方向: 1( 现货向USDT本位合约), 2( USDT本位合约向现货), 3( 现货向币本位合约), and 4( 币本位合约向现货)
 	CType     string `json:"cType"`     //
