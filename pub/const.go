@@ -11,8 +11,8 @@ const (
 
 var TestKey = &Key{
 	UserId:    123456,
-	ApiKey:    "Y3H9yFQTFh55vnlowVrQHBPMRALEfmAfa8Q3yj62HLNolUu9O7TVtvhDio62tfgD", // for testing
-	SecretKey: "FiAAghn8vzGYZ6xYGDpE3Dw8uknzrIrRXJMLjiEiYKBJdHMt6xmiJCJvVwuUXuYD", // for testing
+	ApiKey:    "", // for testing
+	SecretKey: "", // for testing
 }
 
 type ContractType string
