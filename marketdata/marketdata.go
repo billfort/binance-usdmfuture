@@ -7,6 +7,8 @@ import (
 	"github.com/billfort/binance-usdmfuture/pub"
 )
 
+// Test connectivity to the Rest API.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api
 func Connectivity() error {
 	resBody, err := pub.GetNoSign("/fapi/v1/ping", nil)
 	if err != nil {
@@ -16,6 +18,8 @@ func Connectivity() error {
 	return nil
 }
 
+// Test connectivity to the Rest API and get the current server time.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Check-Server-Time
 func CheckServerTime() (int64, error) {
 	resBody, err := pub.GetNoSign("/fapi/v1/time", nil)
 	if err != nil {
@@ -34,6 +38,8 @@ func CheckServerTime() (int64, error) {
 	return s.ServerTime, nil
 }
 
+// Current exchange trading rules and symbol information
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Exchange-Information
 func ExchangeInfo() (*ExchInfo, error) {
 	resBody, err := pub.GetNoSign("/fapi/v1/exchangeInfo", nil)
 	if err != nil {
@@ -49,6 +55,8 @@ func ExchangeInfo() (*ExchInfo, error) {
 	return &ei, nil
 }
 
+// Query symbol orderbook
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Order-Book
 func OrderBook(symbol string, limit int) (*orderBook, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -68,6 +76,9 @@ func OrderBook(symbol string, limit int) (*orderBook, error) {
 	return &d, nil
 }
 
+// Get recent market trades filled in the order book. Only market trades will be returned,
+// which means the insurance fund trades and ADL trades won't be returned.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Recent-Trades-List
 func RecentMarketTrades(symbol string, limit int) ([]marketTrade, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -87,6 +98,8 @@ func RecentMarketTrades(symbol string, limit int) ([]marketTrade, error) {
 	return trades, nil
 }
 
+// Get older market historical trades.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Old-Trades-Lookup
 func HistoricalTrades(symbol string, fromId, limit int) ([]marketTrade, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -109,6 +122,9 @@ func HistoricalTrades(symbol string, fromId, limit int) ([]marketTrade, error) {
 	return trades, nil
 }
 
+// Get compressed, aggregate market trades. Market trades that fill in 100ms with the same price
+// and the same taking side will have the quantity aggregated.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Compressed-Aggregate-Trades-List
 func AggregatedTrades(symbol string, fromId, startTime, endTime, limit int) ([]aggTrade, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -137,6 +153,7 @@ func AggregatedTrades(symbol string, fromId, startTime, endTime, limit int) ([]a
 	return trades, nil
 }
 
+// convert slice of interface to slice of kData
 func sliceToKdata(arr [][]interface{}) []kData {
 	kDataArr := make([]kData, len(arr))
 	for i := 0; i < len(arr); i++ {
@@ -155,6 +172,9 @@ func sliceToKdata(arr [][]interface{}) []kData {
 	}
 	return kDataArr
 }
+
+// Kline/candlestick bars for a symbol. Klines are uniquely identified by their open time.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Kline-Candlestick-Data
 func Klines(symbol string, interval pub.KlineInterval, startTime, endTime, limit int64) ([]kData, error) {
 	params := map[string]interface{}{
 		"symbol":   symbol,
@@ -186,6 +206,8 @@ func Klines(symbol string, interval pub.KlineInterval, startTime, endTime, limit
 	return kDataArr, nil
 }
 
+// Kline/candlestick bars for a specific contract type. Klines are uniquely identified by their open time.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Continuous-Contract-Kline-Candlestick-Data
 func ContinuousKlines(pair string, contractType pub.ContractType, interval pub.KlineInterval,
 	startTime, endTime, limit int) ([]kData, error) {
 	params := map[string]interface{}{
@@ -219,6 +241,8 @@ func ContinuousKlines(pair string, contractType pub.ContractType, interval pub.K
 	return kDataArr, nil
 }
 
+// Kline/candlestick bars for the index price of a pair. Klines are uniquely identified by their open time.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Index-Price-Kline-Candlestick-Data
 func IndexPriceKlines(pair string, contractType pub.ContractType, interval pub.KlineInterval,
 	startTime, endTime, limit int) ([]kData, error) {
 	params := map[string]interface{}{
@@ -252,6 +276,8 @@ func IndexPriceKlines(pair string, contractType pub.ContractType, interval pub.K
 	return kDataArr, nil
 }
 
+// Kline/candlestick bars for the mark price of a symbol. Klines are uniquely identified by their open time.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Mark-Price-Kline-Candlestick-Data
 func MarkPriceKlines(symbol string, interval pub.KlineInterval, startTime, endTime, limit int) ([]kData, error) {
 	params := map[string]interface{}{
 		"symbol":   symbol,
@@ -283,6 +309,8 @@ func MarkPriceKlines(symbol string, interval pub.KlineInterval, startTime, endTi
 	return kDataArr, nil
 }
 
+// Premium index kline bars of a symbol. Klines are uniquely identified by their open time.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Premium-Index-Kline-Data
 func PremiumIndexKlines(symbol string, interval pub.KlineInterval, startTime, endTime, limit int) ([]kData, error) {
 	params := map[string]interface{}{
 		"symbol":   symbol,
@@ -314,6 +342,8 @@ func PremiumIndexKlines(symbol string, interval pub.KlineInterval, startTime, en
 	return kDataArr, nil
 }
 
+// Mark Price and Funding Rate
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Mark-Price
 func MarkPrice(symbol string) ([]markPrice, error) {
 	params := make(map[string]interface{})
 	if symbol != "" {
@@ -341,6 +371,8 @@ func MarkPrice(symbol string) ([]markPrice, error) {
 	}
 }
 
+// Get Funding Rate History
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Get-Funding-Rate-History
 func FundingRateHistory(symbol string, startTime, endTime, limit int) ([]fundingRate, error) {
 	params := make(map[string]interface{})
 	if symbol != "" {
@@ -368,6 +400,8 @@ func FundingRateHistory(symbol string, startTime, endTime, limit int) ([]funding
 	return frs, nil
 }
 
+// Query funding rate info for symbols that had FundingRateCap/ FundingRateFloor / fundingIntervalHours adjustment
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Get-Funding-Rate-Info
 func FundingInfo() ([]fundingInfo, error) {
 	resBody, err := pub.GetNoSign("/fapi/v1/fundingInfo", nil)
 	if err != nil {
@@ -382,6 +416,9 @@ func FundingInfo() ([]fundingInfo, error) {
 	return fis, nil
 }
 
+// 24 hour rolling window price change statistics.
+// Careful when accessing this with no symbol.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/24hr-Ticker-Price-Change-Statistics
 func TickerPriceStatistics24hr(symbol string) ([]ticker24hr, error) {
 	params := make(map[string]interface{})
 	if symbol != "" {
@@ -409,9 +446,9 @@ func TickerPriceStatistics24hr(symbol string) ([]ticker24hr, error) {
 	}
 }
 
-/**
-* version: v1, v2
- */
+// Latest price for a symbol or symbols.
+// version: v1, v2
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Symbol-Price-Ticker
 func TickerPrice(symbol string, version string) ([]tickerPrice, error) {
 	params := make(map[string]interface{})
 	if symbol != "" {
@@ -439,6 +476,8 @@ func TickerPrice(symbol string, version string) ([]tickerPrice, error) {
 	}
 }
 
+// Best price/qty on the order book for a symbol or symbols.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Symbol-Order-Book-Ticker
 func BookTicker(symbol string) ([]bookTicker, error) {
 	params := make(map[string]interface{})
 	if symbol != "" {
@@ -483,6 +522,8 @@ func DeliveryPrice(pair string) ([]deliveryPrice, error) {
 	return arr, nil
 }
 
+// Get present open interest of a specific symbol.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Open-Interest
 func OpenInterest(symbol string) (*openInterest, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -500,6 +541,8 @@ func OpenInterest(symbol string) (*openInterest, error) {
 	return &oi, nil
 }
 
+// Open Interest Statistics
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Open-Interest-Statistics
 func OpenInterestHist(symbol string, period pub.KlineInterval, startTime, endTime, limit int) ([]openInterestHist, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -527,6 +570,11 @@ func OpenInterestHist(symbol string, period pub.KlineInterval, startTime, endTim
 	return arr, nil
 }
 
+// The proportion of net long and net short positions to total open positions of the top 20% users with the highest margin balance.
+// Long Position % = Long positions of top traders / Total open positions of top traders
+// Short Position % = Short positions of top traders / Total open positions of top traders
+// Long/Short Ratio (Positions) = Long Position % / Short Position %
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Top-Trader-Long-Short-Ratio
 func TopLongShortPositionRatio(symbol string, period pub.KlineInterval, startTime, endTime, limit int) ([]longShortRatio, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -554,6 +602,11 @@ func TopLongShortPositionRatio(symbol string, period pub.KlineInterval, startTim
 	return arr, nil
 }
 
+// The proportion of net long and net short accounts to total accounts of the top 20% users with the highest margin balance. Each account is counted once only.
+// Long Account % = Accounts of top traders with net long positions / Total accounts of top traders with open positions
+// Short Account % = Accounts of top traders with net short positions / Total accounts of top traders with open positions
+// Long/Short Ratio (Accounts) = Long Account % / Short Account %
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Top-Long-Short-Account-Ratio
 func TopLongShortAccountRatio(symbol string, period pub.KlineInterval, startTime, endTime, limit int) ([]longShortRatio, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -581,6 +634,8 @@ func TopLongShortAccountRatio(symbol string, period pub.KlineInterval, startTime
 	return arr, nil
 }
 
+// Query symbol Long/Short Ratio
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Long-Short-Ratio
 func GlobalLongShortAccountRatio(symbol string, period pub.KlineInterval, startTime, endTime, limit int) ([]longShortRatio, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -608,6 +663,8 @@ func GlobalLongShortAccountRatio(symbol string, period pub.KlineInterval, startT
 	return arr, nil
 }
 
+// Taker Buy/Sell Volume
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Taker-BuySell-Volume
 func TakerLongShortRatio(symbol string, period pub.KlineInterval, startTime, endTime, limit int) ([]takerLongShortRatio, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -669,6 +726,8 @@ func TakerLongShortRatio(symbol string, period pub.KlineInterval, startTime, end
 // 	return kDataArr, nil
 // }
 
+// Query composite index symbol information
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Composite-Index-Symbol-Information
 func CompositeIndexInfo(symbol string) ([]indexInfo, error) {
 	params := make(map[string]interface{})
 	if symbol != "" {
@@ -687,6 +746,8 @@ func CompositeIndexInfo(symbol string) ([]indexInfo, error) {
 	return arr, nil
 }
 
+// asset index for Multi-Assets mode
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Multi-Assets-Mode-Asset-Index
 func AssetIndex(symbol string) ([]assetIndex, error) {
 	params := make(map[string]interface{})
 	if symbol != "" {
@@ -713,6 +774,8 @@ func AssetIndex(symbol string) ([]assetIndex, error) {
 	}
 }
 
+// Query index price constituents
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Index-Constituents
 func IndexConstituents(symbol string) (*indexConstituents, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,

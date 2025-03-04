@@ -7,9 +7,11 @@ import (
 	"github.com/billfort/binance-usdmfuture/pub"
 )
 
+// Send in a new order.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api
 func NewOrder(key *pub.Key, op *OrderParam) (*orderResponse, error) {
+	var resp orderResponse
 	params := pub.StructToMap(op)
-
 	resBody, errMsg, err := pub.PostWithSign(key, "/fapi/v1/order", params)
 	if err != nil {
 		return nil, err
@@ -18,7 +20,6 @@ func NewOrder(key *pub.Key, op *OrderParam) (*orderResponse, error) {
 		return nil, fmt.Errorf("%+v", errMsg)
 	}
 
-	var resp orderResponse
 	err = json.Unmarshal(resBody, &resp)
 	if err != nil {
 		return nil, err
@@ -27,6 +28,8 @@ func NewOrder(key *pub.Key, op *OrderParam) (*orderResponse, error) {
 	return &resp, nil
 }
 
+// Testing order request, this order will not be submitted to matching engine
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/New-Order-Test
 func TestOrder(key *pub.Key, op *OrderParam) (*orderResponse, error) {
 	params := pub.StructToMap(op)
 
@@ -47,6 +50,8 @@ func TestOrder(key *pub.Key, op *OrderParam) (*orderResponse, error) {
 	return &resp, nil
 }
 
+// Place Multiple Orders
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Place-Multiple-Orders
 func BatchOrders(key *pub.Key, ops []OrderParam) ([]orderResponse, error) {
 	b, err := json.Marshal(ops)
 	if err != nil {
@@ -76,6 +81,9 @@ func BatchOrders(key *pub.Key, ops []OrderParam) ([]orderResponse, error) {
 	return resp, nil
 }
 
+// Order modify function, currently only LIMIT order modification is supported.
+// modified orders will be reordered in the match queue
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Modify-Order
 func ModifyOrder(key *pub.Key, mp *modifyParam) (*orderResponse, error) {
 	params := pub.StructToMap(mp)
 
@@ -93,6 +101,8 @@ func ModifyOrder(key *pub.Key, mp *modifyParam) (*orderResponse, error) {
 	return &resp, nil
 }
 
+// Modify Multiple Orders
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Modify-Multiple-Orders
 func ModifyBatchOrders(key *pub.Key, mps []modifyParam) ([]orderResponse, error) {
 	b, err := json.Marshal(mps)
 	if err != nil {
@@ -119,6 +129,8 @@ func ModifyBatchOrders(key *pub.Key, mps []modifyParam) ([]orderResponse, error)
 	return resp, nil
 }
 
+// Cancel an active order.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Cancel-Order
 func CancelOrder(key *pub.Key, symbol string, orderId int64, origClientOrderId string) (*orderResponse, error) {
 	params := map[string]interface{}{
 		"symbol":            symbol,
@@ -140,6 +152,8 @@ func CancelOrder(key *pub.Key, symbol string, orderId int64, origClientOrderId s
 	return &resp, nil
 }
 
+// Cancel Multiple Orders
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Cancel-Multiple-Orders
 func CancelBatchOrders(key *pub.Key, symbol string, orderIdList []int64, origClientOrderIdList []string) ([]orderResponse, error) {
 	params := map[string]interface{}{
 		"symbol":                symbol,
@@ -161,6 +175,8 @@ func CancelBatchOrders(key *pub.Key, symbol string, orderIdList []int64, origCli
 	return resp, nil
 }
 
+// Cancel All Open Orders
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Cancel-All-Open-Orders
 func CancelAllOpenOrders(key *pub.Key, symbol string) error {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -183,6 +199,9 @@ func CancelAllOpenOrders(key *pub.Key, symbol string) error {
 	return fmt.Errorf("%+v", resp)
 }
 
+// Cancel all open orders of the specified symbol at the end of the specified countdown.
+// The endpoint should be called repeatedly as heartbeats so that the existing countdown time can be canceled and replaced by a new one.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Auto-Cancel-All-Open-Orders
 func CountdownCancleAll(key *pub.Key, symbol string, countdownTime int64) error {
 	params := map[string]interface{}{
 		"symbol":        symbol,
@@ -206,6 +225,8 @@ func CountdownCancleAll(key *pub.Key, symbol string, countdownTime int64) error 
 	return nil
 }
 
+// Check an order's status.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Query-Order
 func QueryOrder(key *pub.Key, symbol string, orderId int64, origClientOrderId string) (*orderResponse, error) {
 	params := map[string]interface{}{
 		"symbol":            symbol,
@@ -227,6 +248,8 @@ func QueryOrder(key *pub.Key, symbol string, orderId int64, origClientOrderId st
 	return &resp, nil
 }
 
+// Get all account orders; active, canceled, or filled.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/All-Orders
 func QueryAllOrders(key *pub.Key, symbol string, orderId int64, startTime int64, endTime int64, limit int) ([]orderResponse, error) {
 	params := map[string]interface{}{
 		"symbol":    symbol,
@@ -250,6 +273,8 @@ func QueryAllOrders(key *pub.Key, symbol string, orderId int64, startTime int64,
 	return resp, nil
 }
 
+// Get all open orders on a symbol.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Current-All-Open-Orders
 func QueryOpenOrders(key *pub.Key, symbol string) ([]orderResponse, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -269,6 +294,8 @@ func QueryOpenOrders(key *pub.Key, symbol string) ([]orderResponse, error) {
 	return resp, nil
 }
 
+// Query open order
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Query-Current-Open-Order
 func QueryOpenOrder(key *pub.Key, symbol string, orderId int64, origClientOrderId string) (*orderResponse, error) {
 	params := map[string]interface{}{
 		"symbol":            symbol,
@@ -290,6 +317,8 @@ func QueryOpenOrder(key *pub.Key, symbol string, orderId int64, origClientOrderI
 	return &resp, nil
 }
 
+// Query user's Force Orders
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Users-Force-Orders
 func QueryForceOrders(key *pub.Key, symbol string, autoCloseType string, startTime int64, endTime int64, limit int) ([]orderResponse, error) {
 	params := map[string]interface{}{
 		"symbol":        symbol,
@@ -313,6 +342,8 @@ func QueryForceOrders(key *pub.Key, symbol string, autoCloseType string, startTi
 	return resp, nil
 }
 
+// Get trades for a specific account and symbol.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Account-Trade-List
 func QueryUserTrades(key *pub.Key, symbol string, orderId int64, startTime, endTime, fromId int64, limit int) ([]tradeInfo, error) {
 	params := map[string]interface{}{
 		"symbol":    symbol,
@@ -337,6 +368,8 @@ func QueryUserTrades(key *pub.Key, symbol string, orderId int64, startTime, endT
 	return resp, nil
 }
 
+// Change symbol level margin type
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Change-Margin-Type
 func SetMarginType(key *pub.Key, symbol string, marginType pub.MarginType) error {
 	params := map[string]interface{}{
 		"symbol":     symbol,
@@ -354,7 +387,9 @@ func SetMarginType(key *pub.Key, symbol string, marginType pub.MarginType) error
 	return nil
 }
 
+// Change user's position mode (Hedge Mode or One-way Mode ) on EVERY symbol
 // dualSidePosition: "true": Enable Hedge Mode, "false": one-way mode
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Change-Position-Mode
 func SetPositionMode(key *pub.Key, dualSidePosition bool) error {
 	params := map[string]interface{}{
 		"dualSidePosition": dualSidePosition,
@@ -371,6 +406,8 @@ func SetPositionMode(key *pub.Key, dualSidePosition bool) error {
 	return nil
 }
 
+// Change user's initial leverage of specific symbol market.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Change-Initial-Leverage
 func SetLeverage(key *pub.Key, symbol string, leverage int) (*leverageInfo, error) {
 	params := map[string]interface{}{
 		"symbol":   symbol,
@@ -394,7 +431,9 @@ func SetLeverage(key *pub.Key, symbol string, leverage int) (*leverageInfo, erro
 	return &resp, nil
 }
 
+// Change user's Multi-Assets mode (Multi-Assets Mode or Single-Asset Mode) on Every symbol
 // multiAssetMargin: true: Multi-asset mode, false: Single-asset mode
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Change-Multi-Assets-Mode
 func SetMarginAssetMode(key *pub.Key, symbol string, multiAssetMargin bool) error {
 	params := map[string]interface{}{
 		"symbol":           symbol,
@@ -412,7 +451,9 @@ func SetMarginAssetMode(key *pub.Key, symbol string, multiAssetMargin bool) erro
 	return nil
 }
 
+// Modify Isolated Position Margin
 // type_: 1: Add position margin, 2: Reduce position margin
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Modify-Isolated-Position-Margin
 func ModifyPositionMargin(key *pub.Key, symbol string, positionSide pub.PositionSide, amount string,
 	type_ int) error {
 	params := map[string]interface{}{
@@ -444,6 +485,8 @@ func ModifyPositionMargin(key *pub.Key, symbol string, positionSide pub.Position
 	return nil
 }
 
+// Get current position information.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Position-Information-V2
 func GetPositionInfoV2(symbol string) ([]positionInfo, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -463,6 +506,8 @@ func GetPositionInfoV2(symbol string) ([]positionInfo, error) {
 	return resp, nil
 }
 
+// Get current position information(only symbol that has position or open orders will be returned).
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Position-Information-V3
 func GetPositionInfoV3(symbol string) ([]positionInfo, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -482,6 +527,8 @@ func GetPositionInfoV3(symbol string) ([]positionInfo, error) {
 	return resp, nil
 }
 
+// Position ADL Quantile Estimation
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Position-ADL-Quantile-Estimation
 func AdlQuantile(symbol string) ([]adlQuantile, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -501,7 +548,9 @@ func AdlQuantile(symbol string) ([]adlQuantile, error) {
 	return resp, nil
 }
 
-// type,	1: Add position margin，2: Reduce position margin
+// Get Position Margin Change History
+// type_, 1: Add position margin，2: Reduce position margin
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/rest-api/Get-Position-Margin-Change-History
 func GetPositionMarginHistory(symbol string, type_ int, startTime, endTime int64, limit int) ([]positionMarginHist, error) {
 	params := map[string]interface{}{
 		"symbol":    symbol,

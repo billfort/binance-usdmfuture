@@ -18,7 +18,7 @@ func TestAccountBalance(t *testing.T) {
 
 // go test -v -run TestGetInternalTransferHist
 func TestGetInternalTransferHist(t *testing.T) {
-	res, err := GetInternalTransferHist(pub.TestKey, 0)
+	res, err := GetInternalTransferHist(pub.TestKey, "", 0)
 	require.Nil(t, err)
 	require.NotNil(t, res)
 	fmt.Printf("GetInternalTransferHist: %+v\n", res)
