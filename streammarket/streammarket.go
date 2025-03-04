@@ -24,7 +24,7 @@ func StartSubscribe(ctx context.Context, streams []string) (*websocket.Conn, cha
 	} else {
 		urlPath = "/stream?streams=" + strings.Join(streams, "/")
 	}
-	fmt.Println("urlPath:", urlPath)
+	fmt.Println("stream market urlPath:", urlPath)
 
 	conn, rawDataChan, err := pub.WsConnect(ctx, urlPath)
 	if err != nil {
@@ -71,7 +71,6 @@ func streamDataProcess(m *pub.WsMessage) (interface{}, error) {
 		}
 	}
 
-	fmt.Printf("StreamData: %+v\n", d.Stream)
 	if d.Stream == "" && d.Data == nil {
 		return nil, fmt.Errorf("got non-stream data: %s", string(m.Message))
 	}

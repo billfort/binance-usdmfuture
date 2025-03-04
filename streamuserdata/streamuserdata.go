@@ -38,7 +38,6 @@ func StartUserStream(ctx context.Context, key *pub.Key) (*websocket.Conn, chan i
 	}()
 
 	urlPath := "/ws/" + listenKey
-	fmt.Println("urlPath:", urlPath)
 	conn, rawDataChan, err := pub.WsConnect(ctx, urlPath)
 	if err != nil {
 		log.Printf("StartSubscribe WsConnect err: %v", err)

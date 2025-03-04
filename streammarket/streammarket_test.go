@@ -121,7 +121,7 @@ func multiStreamDataProcess(data *pub.WsMessage) (interface{}, error) {
 	if err := json.Unmarshal(data.Message, &d); err != nil {
 		return nil, err
 	}
-	fmt.Printf("StreamData: %+v\n", d.Stream)
+
 	if d.Stream == "" || d.Data == nil {
 		return nil, fmt.Errorf("Got non-stream data: %s\n", string(data.Message))
 	}

@@ -8,7 +8,10 @@ import (
 	"github.com/billfort/binance-usdmfuture/pub"
 )
 
+// Get account balance (USER_DATA)
 // version: v2, v3
+// v3: https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Futures-Account-Balance-V3
+// v2: https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Futures-Account-Balance-V2
 func AccountBalance(key *pub.Key, version string) ([]accountBalance, error) {
 	resBody, err := pub.GetWithSign(key, fmt.Sprintf("/fapi/%v/balance", version), nil)
 	if err != nil {
@@ -24,7 +27,10 @@ func AccountBalance(key *pub.Key, version string) ([]accountBalance, error) {
 	return resp, nil
 }
 
+// Get current account information. User in single-asset/ multi-assets mode will see different value
 // version: v2, v3
+// v3: https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Account-Information-V3
+// v2: https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Account-Information-V2
 func AccountInfo(key *pub.Key, version string) (*accountInfo, error) {
 	resBody, err := pub.GetWithSign(key, fmt.Sprintf("/fapi/%v/account", version), nil)
 	if err != nil {
@@ -40,6 +46,8 @@ func AccountInfo(key *pub.Key, version string) (*accountInfo, error) {
 	return &resp, nil
 }
 
+// Get User Commission Rate
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/User-Commission-Rate
 func CommissionRate(key *pub.Key) (*commissionRate, error) {
 	resBody, err := pub.GetWithSign(key, "/fapi/v1/commissionRate", nil)
 	if err != nil {
@@ -55,6 +63,8 @@ func CommissionRate(key *pub.Key) (*commissionRate, error) {
 	return &resp, nil
 }
 
+// Query account configuration
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Account-Config
 func AccountConfiguration(key *pub.Key) (*accountConfiguration, error) {
 	resBody, err := pub.GetWithSign(key, "/fapi/v1/accountConfiguration", nil)
 	if err != nil {
@@ -70,6 +80,8 @@ func AccountConfiguration(key *pub.Key) (*accountConfiguration, error) {
 	return &resp, nil
 }
 
+// Get current account symbol configuration.
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Symbol-Config
 func SymbolConfiguration(key *pub.Key, symbol string) (*symbolConfiguration, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -88,6 +100,8 @@ func SymbolConfiguration(key *pub.Key, symbol string) (*symbolConfiguration, err
 	return &resp, nil
 }
 
+// Query User Rate Limit
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Query-Rate-Limit
 func UserRateLimit(key *pub.Key) ([]rateLimitInfo, error) {
 	resBody, err := pub.GetWithSign(key, "/fapi/v1/rateLimit/order", nil)
 	if err != nil {
@@ -103,6 +117,8 @@ func UserRateLimit(key *pub.Key) ([]rateLimitInfo, error) {
 	return resp, nil
 }
 
+// Query user notional and leverage bracket on speicfic symbol
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Notional-and-Leverage-Brackets
 func LeverageBracket(key *pub.Key, symbol string) ([]leverageBracket, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -129,6 +145,8 @@ func LeverageBracket(key *pub.Key, symbol string) ([]leverageBracket, error) {
 	}
 }
 
+// Get user's Multi-Assets mode (Multi-Assets Mode or Single-Asset Mode) on Every symbol
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Get-Current-Multi-Assets-Mode
 func MultiAssetsMargin(key *pub.Key) (bool, error) {
 	resBody, err := pub.GetWithSign(key, "/fapi/v1/multiAssetsMargin", nil)
 	if err != nil {
@@ -146,6 +164,8 @@ func MultiAssetsMargin(key *pub.Key) (bool, error) {
 	return resp.MultiAssetsMargin, nil
 }
 
+// Get user's position mode (Hedge Mode or One-way Mode ) on EVERY symbol
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Get-Current-Position-Mode
 func DualSidePosition(key *pub.Key) (bool, error) {
 	resBody, err := pub.GetWithSign(key, "/fapi/v1/positionSide/dual", nil)
 	if err != nil {
@@ -163,6 +183,8 @@ func DualSidePosition(key *pub.Key) (bool, error) {
 	return resp.DualSidePosition, nil
 }
 
+// Query income history
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Get-Income-History
 func IncomeHistory(key *pub.Key, symbol string, incomeType pub.IncomeType, startTime, endTime string, page, limit int) ([]income, error) {
 	params := map[string]interface{}{
 		"symbol":     symbol,
@@ -186,6 +208,8 @@ func IncomeHistory(key *pub.Key, symbol string, incomeType pub.IncomeType, start
 	return resp, nil
 }
 
+// Futures trading quantitative rules indicators
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Futures-Trading-Quantitative-Rules-Indicators
 func QuantitativeIndicator(key *pub.Key, symbol string) (*indicators, error) {
 	params := map[string]interface{}{
 		"symbol": symbol,
@@ -204,6 +228,8 @@ func QuantitativeIndicator(key *pub.Key, symbol string) (*indicators, error) {
 	return &resp, nil
 }
 
+// Get download id for futures transaction history
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Get-Download-Id-For-Futures-Transaction-History
 // downloadType: "income", "order", "trade"
 func GetDownloadId(key *pub.Key, downloadType string, startTime, endTime int64) (*downloadId, error) {
 	params := map[string]interface{}{
@@ -224,6 +250,8 @@ func GetDownloadId(key *pub.Key, downloadType string, startTime, endTime int64) 
 	return &resp, nil
 }
 
+// Get futures transaction history download link by Id
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Get-Futures-Transaction-History-Download-Link-by-Id
 // downloadType: "income", "order", "trade"
 func GetDownloadUrl(key *pub.Key, downloadType, downloadId string) (*downloadUrl, error) {
 	params := map[string]interface{}{
@@ -243,6 +271,8 @@ func GetDownloadUrl(key *pub.Key, downloadType, downloadId string) (*downloadUrl
 	return &resp, nil
 }
 
+// Change user's BNB Fee Discount (Fee Discount On or Fee Discount Off ) on EVERY symbol
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Toggle-BNB-Burn-On-Futures-Trade
 func ToggleBNBFee(key *pub.Key, feeBurn bool) error {
 	params := map[string]interface{}{
 		"feeBurn": feeBurn,
@@ -257,6 +287,8 @@ func ToggleBNBFee(key *pub.Key, feeBurn bool) error {
 	return fmt.Errorf("%+v", errMsg)
 }
 
+// Get user's BNB Fee Discount (Fee Discount On or Fee Discount Off )
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/account/rest-api/Get-BNB-Burn-Status
 func GetBNBFeeStatus(key *pub.Key) (bool, error) {
 	resBody, err := pub.GetWithSign(key, "/fapi/v1/feeBurn", nil)
 	if err != nil {
@@ -274,7 +306,10 @@ func GetBNBFeeStatus(key *pub.Key) (bool, error) {
 	return resp.FeeBurn, nil
 }
 
-// 获取合约资金划转历史 (USER_DATA)
+// Get future asset transfer history (USER_DATA)
+// https://developers.binance.com/docs/wallet/asset/query-user-universal-transfer
+// startTime: milliSecond, max 6 months
+// asset: "usdt", "btc", "eth", "bnb", "busd", "usdc", etc.
 func GetInternalTransferHist(key *pub.Key, asset string, startTime int64) (list []TfrRow, err error) {
 	// params: {"startTime": milliSecond, (optional)"asset": "usdt", (optional)"endTime": milliSecond}
 	if startTime == 0 {
