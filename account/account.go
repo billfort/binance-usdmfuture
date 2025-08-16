@@ -318,8 +318,11 @@ func GetInternalTransferHist(key *pub.Key, asset string, startTime int64) (list 
 
 	params := map[string]interface{}{
 		"startTime": fmt.Sprintf("%v", startTime), // max 6 months, default 7 days
-		"asset":     asset,
-		"size":      100, // max 100, default 10
+		// "asset":     asset,
+		"size": 100, // max 100, default 10
+	}
+	if asset != "" {
+		params["asset"] = asset
 	}
 
 	resBody, err := pub.SpotGetWithSign(key, "/sapi/v1/futures/transfer", params)

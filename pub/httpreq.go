@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"time"
 )
 
 // 所有时间、时间戳均为UNIX时间，单位为毫秒。
@@ -36,10 +35,28 @@ var serverTimeAhead = 0
 // 	AdjustTime()
 // }
 
+func CheckServerTime() (int64, error) {
+	resBody, err := GetNoSign("/fapi/v1/time", nil)
+	if err != nil {
+		return 0, err
+	}
+
+	type st struct {
+		ServerTime int64 `json:"serverTime"`
+	}
+	var s st
+	err = json.Unmarshal(resBody, &s)
+	if err != nil {
+		return 0, err
+	}
+
+	return s.ServerTime, nil
+}
+
 func AdjustTime() {
 	// totalSa := int64(0)
 	// for i := 0; i < 5; i++ {
-	// 	_, sa := ServerTime()
+	// 	_, sa := CheckServerTime()
 	// 	totalSa += sa
 	// 	time.Sleep(200 * time.Millisecond)
 	// }
@@ -69,7 +86,8 @@ func getWithSign(baseUrl string, key *Key, path string, data ParamData) (resBody
 	}
 
 	// 取币安的服务器时间
-	timestamp := time.Now().UnixMilli() + int64(serverTimeAhead) // ServerTime()
+	// timestamp := time.Now().UnixMilli() + int64(serverTimeAhead) // ServerTime()
+	timestamp, _ := CheckServerTime()
 	signData["timestamp"] = fmt.Sprintf("%v", timestamp)
 
 	sign := NewSign(key.ApiKey, key.SecretKey)
@@ -125,7 +143,8 @@ func PostWithSign(key *Key, path string, data ParamData) (resBody []byte, errMsg
 		signData[k] = v
 	}
 
-	timestamp := time.Now().UnixMilli() + int64(serverTimeAhead) // ServerTime()
+	// timestamp := time.Now().UnixMilli() + int64(serverTimeAhead) // ServerTime()
+	timestamp, _ := CheckServerTime()
 	signData["timestamp"] = fmt.Sprintf("%v", timestamp)
 	sign := NewSign(key.ApiKey, key.SecretKey)
 	str, s := sign.BinanceGetSign(signData)
@@ -180,7 +199,8 @@ func PutWithSign(key *Key, path string, data ParamData) (resBody []byte, err err
 	}
 
 	// 取币安的服务器时间
-	timestamp := time.Now().UnixMilli() + int64(serverTimeAhead) // ServerTime()
+	// timestamp := time.Now().UnixMilli() + int64(serverTimeAhead) // ServerTime()
+	timestamp, _ := CheckServerTime()
 	signData["timestamp"] = fmt.Sprintf("%v", timestamp)
 
 	sign := NewSign(key.ApiKey, key.SecretKey)
@@ -238,7 +258,8 @@ func DeleteWithSign(key *Key, path string, data ParamData) (resBody []byte, err 
 	}
 
 	// 取币安的服务器时间
-	timestamp := time.Now().UnixMilli() + int64(serverTimeAhead) // ServerTime()
+	// timestamp := time.Now().UnixMilli() + int64(serverTimeAhead) // ServerTime()
+	timestamp, _ := CheckServerTime()
 	signData["timestamp"] = fmt.Sprintf("%v", timestamp)
 
 	sign := NewSign(key.ApiKey, key.SecretKey)
